@@ -112,11 +112,11 @@ Combines the three grayscale images into a colored image according to color
 """
 
 
-def color_image_from_gray_images(image_red, image_green, image_blue):
+def color_image_from_gray_images(image_red, image_green, image_blue, image_alpha):
     result = {
         'width': image_red['width'],
         'height': image_red['height'],
-        'pixels': [rgb_tuple for rgb_tuple in zip(image_red['pixels'], image_green['pixels'], image_blue['pixels'])],
+        'pixels': [rgb_tuple for rgb_tuple in zip(image_red['pixels'], image_green['pixels'], image_blue['pixels'], image_alpha['pixels'])],
     }
     return result
 
@@ -132,10 +132,12 @@ def color_filter_from_greyscale_filter(filt):
         red_image = gray_image_from_color_image(im, 0)
         green_image = gray_image_from_color_image(im, 1)
         blue_image = gray_image_from_color_image(im, 2)
+        alpha_image = gray_image_from_color_image(im, 3)
         new_red_image = filt(red_image)
         new_green_image = filt(green_image)
         new_blue_image = filt(blue_image)
-        return color_image_from_gray_images(new_red_image, new_green_image, new_blue_image)
+        new_alpha_image = filt(alpha_image)
+        return color_image_from_gray_images(new_red_image, new_green_image, new_blue_image, new_alpha_image)
 
     return filter_image
 
@@ -151,7 +153,7 @@ def load_color_image(filename):
     """
     with open(filename, 'rb') as img_handle:
         img = Image.open(img_handle)
-        img = img.convert('RGB')  # in case we were given a greyscale image
+        img = img.convert('RGBA')  # in case we were given a greyscale image
         img_data = img.getdata()
         pixels = list(img_data)
         w, h = img.size
@@ -165,7 +167,7 @@ def save_color_image(image, filename, mode='PNG'):
     If filename is given as a file-like object, the file type will be
     determined by the 'mode' parameter.
     """
-    out = Image.new(mode='RGB', size=(image['width'], image['height']))
+    out = Image.new(mode='RGBA', size=(image['width'], image['height']))
     out.putdata(image['pixels'])
     filename = "output/" + filename
     if isinstance(filename, str):
@@ -181,7 +183,10 @@ if __name__ == '__main__':
     # generating images, etc.
 
     print("In order to run, put the image into the input folder and change the names.")
-    size = (1000, 1200)
-    im = load_color_image("input/frog.png")
-    save_color_image(color_filter_from_greyscale_filter(resized(size))(im), "resized.png")
+    arr = [16, 32, 48, 128]
+    im = load_color_image("input/laptop.ico")
+    for i in arr:
+        size = (i, i)
+        name = "get_started" + str(i) + ".png"
+        save_color_image(color_filter_from_greyscale_filter(resized(size))(im), name)
     print("Done running!")
