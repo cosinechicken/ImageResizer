@@ -181,6 +181,7 @@ if __name__ == '__main__':
     # generating images, etc.
 
     print("In order to run, put the image into the input folder and change the names.")
-    size = (300, 800)
+    size = (1000, 1200)
     im = load_color_image("input/frog.png")
     save_color_image(color_filter_from_greyscale_filter(resized(size))(im), "resized.png")
+    print("Done running!")
